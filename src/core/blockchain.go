@@ -26,7 +26,6 @@ func NewBlockchain() *Blockchain {
 		PreviousHash: "calculate hash here",
 	}
 	bcn.CurrentBlock = bcn.Genesis
-	// bcn.NextBlock = nil
 	return bcn
 }
 
@@ -38,7 +37,6 @@ func (b *Blockchain) AddBlock(block *entities.Block) (int64, error) {
 
 func (b *Blockchain) GetChain() ([]string, error) {
 	chain := make([]string, 10)
-	chain = append(chain, b.Genesis.PreviousHash)
 	tmpBlk := b.Genesis
 	for tmpBlk != nil {
 		hashKey := tmpBlk.PreviousHash
