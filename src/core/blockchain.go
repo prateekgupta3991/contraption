@@ -9,12 +9,14 @@ import (
 type Blockchain struct {
 	Genesis      *entities.Block
 	CurrentBlock *entities.Block
-	// NextBlock    *entities.Block
 }
 
 type BcnOperation interface {
-	AddBlock(proof int64, prevHash string) (int64, error)
-	GetChain() []string
+	AddBlock(block *entities.Block) (int64, error)
+	GetChain() ([]string, error)
+	GetIndex() int64
+	GetProof() int64
+	GetPrevHash() string
 }
 
 func NewBlockchain() *Blockchain {
@@ -44,4 +46,16 @@ func (b *Blockchain) GetChain() ([]string, error) {
 		tmpBlk = tmpBlk.NextBlock
 	}
 	return chain, nil
+}
+
+func (b *Blockchain) GetIndex() int64 {
+	return b.CurrentBlock.Index
+}
+
+func (b *Blockchain) GetProof() int64 {
+	return b.CurrentBlock.Proof
+}
+
+func (b *Blockchain) GetPrevHash() string {
+	return b.CurrentBlock.PreviousHash
 }

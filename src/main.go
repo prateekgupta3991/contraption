@@ -27,8 +27,11 @@ func main() {
 
 	router := gin.New()
 	router.Use(guidMiddleware())
-	bcs := services.NewBlockchainService(bcnMaster)
+	blkSer := &core.BlockService{}
+	trxnSer := &core.TransactionService{}
+	bcs := services.NewBlockchainService(bcnMaster, blkSer, trxnSer)
 	router.GET("/chain", bcs.GetChain)
+	router.POST("/txn", bcs.NewTxn)
 	port := fmt.Sprintf(":%s", con.ServerPort)
 	router.Run(port)
 }
