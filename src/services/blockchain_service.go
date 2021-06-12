@@ -10,6 +10,7 @@ import (
 	"github.com/praateekgupta3991/contraption/clients"
 	"github.com/praateekgupta3991/contraption/core"
 	"github.com/praateekgupta3991/contraption/entities"
+	"github.com/praateekgupta3991/contraption/util"
 )
 
 type BlockchainService struct {
@@ -46,7 +47,9 @@ func (bcs *BlockchainService) NewTxn(c *gin.Context) {
 			fmt.Printf("Could not process the webhook. Error encountered : %v\n", err.Error())
 			c.JSON(http.StatusBadRequest, "Bad request")
 		} else {
-			nBlock := bcs.blk.CreateBlock(bcs.bcn.GetIndex(), bcs.bcn.GetProof(), bcs.bcn.GetPrevHash())
+			byteOfStruct := []byte(fmt.Sprintf("%v", bcs.bcn.GetCurrentBlock()))
+			blockHashVal := util.GetShaHash(byteOfStruct)
+			nBlock := bcs.blk.CreateBlock(bcs.bcn.GetIndex(), bcs.bcn.GetProof(), blockHashVal)
 			txnEntity.Id = bcs.txn.GetTransactionId(bcs.bcn.GetIndex())
 			nBlock.Transactions = []entities.Transaction{*txnEntity}
 			bid, _ := bcs.bcn.AddBlock(nBlock)

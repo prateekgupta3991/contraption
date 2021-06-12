@@ -14,11 +14,14 @@ import (
 	"github.com/praateekgupta3991/contraption/configs"
 	"github.com/praateekgupta3991/contraption/core"
 	"github.com/praateekgupta3991/contraption/services"
+	"github.com/praateekgupta3991/contraption/util"
 )
 
 func main() {
 	bcnMaster := core.NewBlockchain()
-	blk := core.NewBlock(bcnMaster.CurrentBlock.Index, bcnMaster.Genesis.Proof, bcnMaster.CurrentBlock.PreviousHash)
+	byteOfStruct := []byte(fmt.Sprintf("%v", bcnMaster.CurrentBlock))
+	blockHashVal := util.GetShaHash(byteOfStruct)
+	blk := core.NewBlock(bcnMaster.CurrentBlock.Index, bcnMaster.Genesis.Proof, blockHashVal)
 	blk.Transactions = append(blk.Transactions, core.NewTransaction(bcnMaster.CurrentBlock.Index, "", "", 5))
 	bcnMaster.AddBlock(blk)
 	fmt.Println("The blockchain ran fine")

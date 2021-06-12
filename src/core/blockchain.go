@@ -17,6 +17,7 @@ type BcnOperation interface {
 	GetIndex() int64
 	GetProof() int64
 	GetPrevHash() string
+	GetCurrentBlock() *entities.Block
 }
 
 func NewBlockchain() *Blockchain {
@@ -25,7 +26,7 @@ func NewBlockchain() *Blockchain {
 		Index:        1,
 		Timestamp:    time.Now(),
 		Proof:        100,
-		PreviousHash: "calculate hash here",
+		PreviousHash: "1",
 	}
 	bcn.CurrentBlock = bcn.Genesis
 	return bcn
@@ -58,4 +59,8 @@ func (b *Blockchain) GetProof() int64 {
 
 func (b *Blockchain) GetPrevHash() string {
 	return b.CurrentBlock.PreviousHash
+}
+
+func (b *Blockchain) GetCurrentBlock() *entities.Block {
+	return b.CurrentBlock
 }
