@@ -7,21 +7,26 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/praateekgupta3991/contraption/clients"
 	"github.com/praateekgupta3991/contraption/core"
 	"github.com/praateekgupta3991/contraption/entities"
 )
 
 type BlockchainService struct {
-	bcn core.BcnOperation
-	blk core.BlockOperation
-	txn core.TransactionOperation
+	bcn      core.BcnOperation
+	blk      core.BlockOperation
+	txn      core.TransactionOperation
+	nodes    []string
+	inClient clients.InterNodeComm
 }
 
-func NewBlockchainService(bop core.BcnOperation, block core.BlockOperation, transaction core.TransactionOperation) *BlockchainService {
+func NewBlockchainService(bop core.BcnOperation, block core.BlockOperation, transaction core.TransactionOperation, ip string, incomm clients.InterNodeComm) *BlockchainService {
 	return &BlockchainService{
-		bcn: bop,
-		blk: block,
-		txn: transaction,
+		bcn:      bop,
+		blk:      block,
+		txn:      transaction,
+		nodes:    []string{ip},
+		inClient: incomm,
 	}
 }
 
@@ -48,4 +53,39 @@ func (bcs *BlockchainService) NewTxn(c *gin.Context) {
 			c.JSON(http.StatusOK, bid)
 		}
 	}
+}
+
+func (bcs *BlockchainService) RegisterNewNodes(c *gin.Context) {
+	isPresent := false
+	qp := c.Request.URL.Query()
+	ip := qp.Get("ip")
+	for _, v := range bcs.nodes {
+		if v == ip {
+			isPresent = true
+		}
+	}
+	if !isPresent {
+		bcs.nodes = append(bcs.nodes, ip)
+		c.JSON(http.StatusOK, gin.H{"info": "Node added"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"info": "Node already present"})
+}
+
+func (bcs *BlockchainService) ResolveChain(c *gin.Context) {
+	for i, v := range bcs.nodes {
+		if i == 0 {
+			continue
+		}
+		chain, err := bcs.inClient.Chain(v)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"error": "Failed to get the chain"})
+			return
+		}
+		fmt.Println("Printing the chain")
+		for _, val := range chain {
+			fmt.Println(val)
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{"info": "Got the chain"})
 }
