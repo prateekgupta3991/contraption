@@ -13,10 +13,12 @@ type Blockchain struct {
 
 type BcnOperation interface {
 	AddBlock(block *entities.Block) (int64, error)
-	GetChain() ([]string, error)
+	GetChain() ([]entities.Block, error)
 	GetIndex() int64
 	GetProof() int64
 	GetPrevHash() string
+	GetCurrentBlock() *entities.Block
+	UpdateChain(*entities.Block)
 }
 
 func NewBlockchain() *Blockchain {
@@ -25,7 +27,7 @@ func NewBlockchain() *Blockchain {
 		Index:        1,
 		Timestamp:    time.Now(),
 		Proof:        100,
-		PreviousHash: "calculate hash here",
+		PreviousHash: "1",
 	}
 	bcn.CurrentBlock = bcn.Genesis
 	return bcn
@@ -37,12 +39,11 @@ func (b *Blockchain) AddBlock(block *entities.Block) (int64, error) {
 	return block.Index, nil
 }
 
-func (b *Blockchain) GetChain() ([]string, error) {
-	chain := make([]string, 10)
+func (b *Blockchain) GetChain() ([]entities.Block, error) {
+	chain := make([]entities.Block, 0)
 	tmpBlk := b.Genesis
 	for tmpBlk != nil {
-		hashKey := tmpBlk.PreviousHash
-		chain = append(chain, hashKey)
+		chain = append(chain, *tmpBlk)
 		tmpBlk = tmpBlk.NextBlock
 	}
 	return chain, nil
@@ -58,4 +59,12 @@ func (b *Blockchain) GetProof() int64 {
 
 func (b *Blockchain) GetPrevHash() string {
 	return b.CurrentBlock.PreviousHash
+}
+
+func (b *Blockchain) GetCurrentBlock() *entities.Block {
+	return b.CurrentBlock
+}
+
+func (b *Blockchain) UpdateChain(syncBlk *entities.Block) {
+	b.Genesis = syncBlk
 }
