@@ -5,7 +5,7 @@ import "time"
 type Block struct {
 	Index        int64         `json:"index"`
 	Timestamp    time.Time     `json:"timestamp"`
-	Transactions []Transaction `json:"transations"`
+	Transactions []Transaction `json:"transactions"`
 	Proof        int64         `json:"proof"`
 	PreviousHash string        `json:"previousHash"`
 	NextBlock    *Block        `json:"next"`

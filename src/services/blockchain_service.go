@@ -50,7 +50,7 @@ func (bcs *BlockchainService) NewTxn(c *gin.Context) {
 			byteOfStruct := []byte(fmt.Sprintf("%v", bcs.bcn.GetCurrentBlock()))
 			blockHashVal := util.GetShaHash(byteOfStruct)
 			nBlock := bcs.blk.CreateBlock(bcs.bcn.GetIndex(), bcs.bcn.GetProof(), blockHashVal)
-			txnEntity.Id = bcs.txn.GetTransactionId(bcs.bcn.GetIndex())
+			txnEntity.Id = bcs.txn.GetTransactionId(bcs.bcn.GetIndex() + 1)
 			nBlock.Transactions = []entities.Transaction{*txnEntity}
 			bid, _ := bcs.bcn.AddBlock(nBlock)
 			c.JSON(http.StatusOK, bid)
@@ -81,6 +81,7 @@ func (bcs *BlockchainService) ResolveChain(c *gin.Context) {
 			continue
 		}
 		chain, err := bcs.inClient.Chain(v)
+		chainLen := len(chain)
 		if err != nil {
 			c.JSON(http.StatusOK, gin.H{"error": "Failed to get the chain"})
 			return
@@ -88,6 +89,10 @@ func (bcs *BlockchainService) ResolveChain(c *gin.Context) {
 		fmt.Println("Printing the chain")
 		for _, val := range chain {
 			fmt.Println(val)
+		}
+		bcsLen := bcs.bcn.GetCurrentBlock().Index
+		if bcsLen < int64(chainLen) {
+			bcs.bcn.UpdateChain(&chain[0])
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{"info": "Got the chain"})

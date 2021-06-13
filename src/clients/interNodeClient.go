@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+
+	"github.com/praateekgupta3991/contraption/entities"
 )
 
 type InterNodeClient struct {
@@ -12,7 +14,7 @@ type InterNodeClient struct {
 }
 
 type InterNodeComm interface {
-	Chain(nodeUrl string) ([]string, error)
+	Chain(nodeUrl string) ([]entities.Block, error)
 }
 
 func InitInterNodeClient(hClient *http.Client) *InterNodeClient {
@@ -22,7 +24,7 @@ func InitInterNodeClient(hClient *http.Client) *InterNodeClient {
 	return client
 }
 
-func (c *InterNodeClient) Chain(nodeUrl string) ([]string, error) {
+func (c *InterNodeClient) Chain(nodeUrl string) ([]entities.Block, error) {
 	url := fmt.Sprintf("http://%s/%s", nodeUrl, "chain")
 	if req, err := http.NewRequest("GET", url, nil); err != nil {
 		fmt.Println(url)
@@ -33,7 +35,7 @@ func (c *InterNodeClient) Chain(nodeUrl string) ([]string, error) {
 			return nil, err
 		}
 		defer resp.Body.Close()
-		wh := new([]string)
+		wh := new([]entities.Block)
 		if body, err := ioutil.ReadAll(resp.Body); err != nil {
 			return nil, err
 		} else {
